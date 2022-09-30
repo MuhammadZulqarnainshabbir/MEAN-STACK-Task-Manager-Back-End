@@ -122,13 +122,30 @@ app.patch('/tasklists/:tasklistId', (req, res) => {
 //delete a task by id
 
 app.delete('/tasklists/:tasklistId', (req, res) => {
-    Tasklist.findByIdAndDelete(req.params.tasklistId)
+
+    //Delete all tasks within a that tasklist if the tasklist is deleted
+
+    const deleteAllContaingtask = (lists) => {
+        Task.deleteMany({ _tasklistId: req.params.tasklistId })
+            .then(() => { return lists })
+            .catch((err) => { console.log(err) })
+
+
+    }
+
+
+
+    const responseTaskList = Tasklist.findByIdAndDelete(req.params.tasklistId)
         .then((lists) => {
-            res.status(201);
-            res.send(lists);
+            deleteAllContaingtask(lists);
+
 
         })
+
+
         .catch((err) => { console.log(err) })
+    res.status(200);
+    res.send(responseTaskList);
 })
 
 
